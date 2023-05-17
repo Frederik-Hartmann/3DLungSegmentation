@@ -2,13 +2,14 @@
 
 ```mermaid
 flowchart LR 
-	A["Preprocessing"]
-	B["Lung Segmentation"]
-	C["Posprocessing"]
+	A["Preprocessing"];
+	B["Lung Segmentation"];
+	C["Postprocessing"];
 	
-	A --> B
-    B --> C
-	click A https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/preprocessing.py
-	click B https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/lungSegmentation.py
-	click C https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/postprocessing.py	
+	A --> B;
+    B --> C;
+	click A href "https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/preprocessing.py";
+	click B href "https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/lungSegmentation.py";
+	click C href "https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/postprocessing.py";
+
 ```
