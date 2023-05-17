@@ -7,9 +7,9 @@ flowchart LR
 	C["Postprocessing"];
 	
 	A --> B;
-    B --> C;
-	click A href "https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/preprocessing.py";
-	click B href "https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/lungSegmentation.py";
-	click C href "https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/postprocessing.py";
+    	B --> C;
+	click A href "https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/preprocessing.py _blank";
+	click B href "https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/lungSegmentation.py _blank";
+	click C href "https://github.com/Frederik-Hartmann/3DLungSegmentation/blob/main/postprocessing.py _blank";
 
 ```
