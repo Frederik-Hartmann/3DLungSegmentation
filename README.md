@@ -151,9 +151,9 @@ def openTableOf(binarizedSagittalSlice):
     <th style="width: 20%;">Implementation</th>
   </tr>
   <tr>
-    <td style="width: 33.33%;"><img src="./visualization/tableOpenFull.png"></td>
-    <td style="width: 33.33%;"><img src="./visualization/floodedSagittalSlice.png"">
-    <td style="width: 33.33%;">
+    <td style="width: 40%;"><img src="./visualization/tableOpenFull.png"></td>
+    <td style="width: 40%;"><img src="./visualization/floodedSagittalSlice.png">
+    <td style="width: 20%;">
       <pre lang="python"><code> 
 def createUniformBackgroundOf(binarizedSagittalSlice):
   h, w = binarizedSagittalSlice.shape[:2]
@@ -168,3 +168,25 @@ def createUniformBackgroundOf(binarizedSagittalSlice):
     </td>
   </tr>
 </table>
+
+7. As you can see we now have the lung in black on a white background. The goal is to have the lung in white on a black background. Because, we will apply the mask to the original image again and refine it, we can close the holes now generously. This is done by applying a box filter of ones with a kernel size of 30. The output of this convolution will not be binary anymore. Therefore, the slice is thresholded again. As you can see the lung area is covered, but there are some points that clearly don't below to the lung.
+
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Output</th>
+    <th style="width: 50%;">Implementation</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/closedHolesSagittalSlice.png"">
+    <td style="width: 50%;">
+      <pre lang="python"><code> 
+def createMaskByFillingHolesOf(BinarySliceWithUniformBackground):
+  inverted = (np.logical_not(BinarySliceWithUniformBackground)).astype("uint8")
+  filled = cv2.boxFilter(inverted, ddepth=-1, ksize=(30,30), normalize=False)
+  _, binarized = cv2.threshold(filled, thresh=1, maxval=1, type=cv2.THRESH_BINARY)
+  return binarized
+      </code></pre>
+    </td>
+  </tr>
+</table>
+
