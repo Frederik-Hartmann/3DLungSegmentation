@@ -207,3 +207,22 @@ def createMaskByFillingHolesOf(BinarySliceWithUniformBackground):
     </td>
   </tr>
 </table>
+
+### Evaluation of preprocessing
+The goals of the preprocessing were:
+1. Remove the table
+2. Make the backgroud and surrounding tissue of the lung the same color
+   
+Let's check if the table is removed:
+<p align="center">
+	<img src="./visualization/preprocessed3D.png" width=50% height=50%>
+</p>
+
+It can be seen that the table was sucessfully removed. However, some artifact remain (circled in red). Additionally the tube in the middle (circled in blue) is not a part of the lung, but it is part of the airways to provide the lung with air. The tube is called trachea. We will take care of these problems in the next step, but for now let's have a look at the background. It can be seen seen that the background seems to be the same color, but did we remove any lung pixels/voxels? For that we calculate the sensitivity on the vessel12 dataset:
+$$0.9999694 \mp 0,0000436$$
+It can be seen that some pixels are wrongly labeled as not lung. Nevertheless, the amount of wrongly labeled pixels is low. Additionally, the region of interest has been reduced from the entire image to a smaller mask. The average relative size is
+
+$$ {\sum \text{Predicted Mask} \over \sum \text{Actual Mask}} = 0.1864 = 18.64\%$$
+
+This means that the predicted mask is roughly 81% smaller than the original image. 
+
