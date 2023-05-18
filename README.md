@@ -97,3 +97,25 @@ def createMaskFrom(self,SagittalSlice):
   </tr>
 </table>
 
+4. In order to create the mask we have to binarize the image. The binarization is achieved by thresholding the image with a threshold of the maximum value minus one.
+
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 40%;">Input</th>
+    <th style="width: 40%;">Output</th>
+    <th style="width: 20%;">Implementation</th>
+  </tr>
+  <tr>
+    <td style="width: 33.33%;"><img src="./visualization/denoisedSagittalSlice.png"></td>
+    <td style="width: 33.33%;"><img src="./visualization/binarizedSagittalSlice.png"">
+    <td style="width: 33.33%;">
+      <pre lang="python"><code> 
+def binarize(sagittalSlice):
+	_, binarizedSlice = cv2.threshold(sagittalSlice,
+	    	thresh=sagittalSlice.max()-1, maxval=1,
+	    	type=cv2.THRESH_BINARY)
+	return binarizedSlice.astype("uint8")
+      </code></pre>
+    </td>
+  </tr>
+</table>
