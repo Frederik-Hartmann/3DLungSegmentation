@@ -142,3 +142,29 @@ def openTableOf(binarizedSagittalSlice):
     </td>
   </tr>
 </table>
+
+6. Now we floodfill the binarized image from left and right. In addition to that, we will receive a mask of where the floodfilling was applied. We call this mask background mask. The floodfilling only accepts a single pixel as an input. Since we want to flood from the entire edge, we draw a line in the color of background there.
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 40%;">Input</th>
+    <th style="width: 40%;">Output</th>
+    <th style="width: 20%;">Implementation</th>
+  </tr>
+  <tr>
+    <td style="width: 33.33%;"><img src="./visualization/tableOpenFull.png"></td>
+    <td style="width: 33.33%;"><img src="./visualization/floodedSagittalSlice.png"">
+    <td style="width: 33.33%;">
+      <pre lang="python"><code> 
+def createUniformBackgroundOf(binarizedSagittalSlice):
+  h, w = binarizedSagittalSlice.shape[:2]
+  backgroundMask = np.zeros((h+2,w+2),dtype="uint8")
+  cv2.line(binarizedSagittalSlice, (0,0),(0,h-1),0,thickness=1) 
+  cv2.line(binarizedSagittalSlice, (w-1,0),(w-1,h-1),0,thickness=1) 
+  cv2.floodFill(binarizedSagittalSlice, backgroundMask, (0,0),1,flags=4) 
+  cv2.floodFill(binarizedSagittalSlice, backgroundMask, (w-1,0),1,flags=4)
+  backgroundMask = np.logical_not(backgroundMask[1:-1,1:-1]).astype("uint8") 
+  return binarizedSagittalSlice, backgroundMask
+      </code></pre>
+    </td>
+  </tr>
+</table>
