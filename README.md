@@ -106,7 +106,7 @@ def createMaskFrom(self,SagittalSlice):
     <th style="width: 20%;">Implementation</th>
   </tr>
   <tr>
-    <td style="width: 33.33%;"><img src="./visualization/denoisedSagittalSlice.png"></td>
+    <td style="width: 33.33%;"><img src="./visualization/denoisedFullSagittalSlice.png"></td>
     <td style="width: 33.33%;"><img src="./visualization/binarizedSagittalSlice.png"">
     <td style="width: 33.33%;">
       <pre lang="python"><code> 
@@ -115,6 +115,29 @@ def binarize(sagittalSlice):
 	    	thresh=sagittalSlice.max()-1, maxval=1,
 	    	type=cv2.THRESH_BINARY)
 	return binarizedSlice.astype("uint8")
+      </code></pre>
+    </td>
+  </tr>
+</table>
+
+5. Thex next goal is to make everything that is not lung tissue white. In order to accomplish this, we will flood the image from the left and right. We could also flood it from the top and bottom, but in case the lung is touching the border, it will flood it to0. However, a problem remains. When flooding from the right, it is impossible to flow through the table. So we need to break the table first. We do that on the top row of the image only. We use morphological opening to open the table. The structuring element is a line. The line needs to be longer than the table width. The result idea is displayed below.
+
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 40%;">Input</th>
+    <th style="width: 40%;">Output</th>
+    <th style="width: 20%;">Implementation</th>
+  </tr>
+  <tr>
+    <td style="width: 33.33%;"><img src="./visualization/tableClosed.png"></td>
+    <td style="width: 33.33%;"><img src="./visualization/tableOpen.png"">
+    <td style="width: 33.33%;">
+      <pre lang="python"><code> 
+def openTableOf(binarizedSagittalSlice):
+  kernel = cv2.getStructuringElement(shape=cv2.MORPH_RECT, ksize=(25,1))
+  topRowOpen = cv2.morphologyEx(binarizedSagittalSlice[:1], cv2.MORPH_OPEN, kernel, iterations=1)
+  binarizedSagittalSlice[:1] = topRowOpen
+  return binarizedSagittalSlice)
       </code></pre>
     </td>
   </tr>
