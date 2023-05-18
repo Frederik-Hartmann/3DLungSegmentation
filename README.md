@@ -190,3 +190,20 @@ def createMaskByFillingHolesOf(BinarySliceWithUniformBackground):
   </tr>
 </table>
 
+8. The final step of the preprocessing is the combining of the masks. The creation of the mask in step 7. has caused the mask to grow back in the background. Luckily for us,  in step 6, we have created a background mask so we can just use this one. In the image below, one difference is circled.
+
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Output</th>
+    <th style="width: 50%;">Implementation</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/combinedPreMask.png"">
+    <td style="width: 50%;">
+      <pre lang="python"><code> 
+    def combineMasks(filledMask, backgroundMask):
+        return cv2.bitwise_and(filledMask, backgroundMask)
+      </code></pre>
+    </td>
+  </tr>
+</table>
