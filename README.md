@@ -49,5 +49,27 @@ def clipScanToHounsfieldUnitRange(scan,HounsfieldUnitRange):
   </tr>
 </table>
 
-
+This is done for the entire scan. The steps after this are applied to each slice seperately. It can be seen that the table in this viewing direction is not a straight line. This will become important later. To make the table straight, we use the sagittal view and therefore use sagittal slices. 
+1. First we loop through the sagittal slices:
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Sagittal slice</th>
+    <th style="width: 50%;">Implementation</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/clippedSagittalSlice.png"></td>
+    <td style="width: 50%;">
+      <pre lang="python"><code>
+def createMaskForEachSliceOf(self, clippedScan):
+	mask = np.zeros(clippedScan.shape, dtype="int16")
+	numberOfSagittalSlices = clippedScan.shape[1]
+		for i in range(0,numberOfSagittalSlices):
+			sagittalSlice = clippedScan[:,:,i]
+			sliceMask = self.createMaskFrom(sagittalSlice)
+			mask[:,:,i] = sliceMask.astype("int16")
+	return mask
+      </code></pre>
+    </td>
+  </tr>
+</table>
 
