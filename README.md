@@ -73,3 +73,27 @@ def createMaskForEachSliceOf(self, clippedScan):
   </tr>
 </table>
 
+2. The next step is to create a mask for each sagittal slice. Each function will be explained used will be explained in the following steps.
+<pre lang="python"><code>
+def createMaskFrom(self,SagittalSlice):
+        denoisedSagittalSlice = cv2.medianBlur(SagittalSlice,ksize=5)
+        binarizedSagittalSlice = self.binarize(denoisedSagittalSlice)
+        sliceWithOpenTable = self.openTableOf(binarizedSagittalSlice)
+        SagittalSliceWithUniformBackground, backgroundMask = self.createUniformBackgroundOf(binarizedSagittalSlice)
+        mask = self.createMaskByFillingHolesOf(SagittalSliceWithUniformBackground)
+        combinedMask = self.combineMasks(mask, backgroundMask)
+        return combinedMask
+</code></pre>
+
+3. Let's start with the denoising. It is worth noting that denoising might remove relevant medical information.However, some scans can be a  bit noisy. The type of the noise seems to be "salt" and "pepper" noise. To reduce this kind of noise, one can apply median filtering. Let's zoom in on our slice and apply denoising. To the left you can see the background with some clothes, in the middle the tissues surrounding the lung and on the right the lung. You can see that the noise has been reduced, but at the same time the slice appears to be more blurry.
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Clipped Sagittal Slice</th>
+    <th style="width: 50%;">Denoised Sagittal Slice</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/noisySagittalSlice.png"></td>
+    <td style="width: 50%;"><img src="./visualization/denoisedSagittalSlice.png"></td>
+  </tr>
+</table>
+
