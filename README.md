@@ -107,7 +107,7 @@ def createMaskFrom(self,SagittalSlice):
   </tr>
   <tr>
     <td style="width: 33.33%;"><img src="./visualization/denoisedFullSagittalSlice.png"></td>
-    <td style="width: 33.33%;"><img src="./visualization/binarizedSagittalSlice.png"">
+    <td style="width: 33.33%;"><img src="./visualization/binarizedSagittalSlice.png">
     <td style="width: 33.33%;">
       <pre lang="python"><code> 
 def binarize(sagittalSlice):
@@ -130,7 +130,7 @@ def binarize(sagittalSlice):
   </tr>
   <tr>
     <td style="width: 33.33%;"><img src="./visualization/tableClosed.png"></td>
-    <td style="width: 33.33%;"><img src="./visualization/tableOpen.png"">
+    <td style="width: 33.33%;"><img src="./visualization/tableOpen.png">
     <td style="width: 33.33%;">
       <pre lang="python"><code> 
 def openTableOf(binarizedSagittalSlice):
@@ -177,7 +177,7 @@ def createUniformBackgroundOf(binarizedSagittalSlice):
     <th style="width: 50%;">Implementation</th>
   </tr>
   <tr>
-    <td style="width: 50%;"><img src="./visualization/closedHolesSagittalSlice.png"">
+    <td style="width: 50%;"><img src="./visualization/closedHolesSagittalSlice.png">
     <td style="width: 50%;">
       <pre lang="python"><code> 
 def createMaskByFillingHolesOf(BinarySliceWithUniformBackground):
@@ -198,15 +198,28 @@ def createMaskByFillingHolesOf(BinarySliceWithUniformBackground):
     <th style="width: 50%;">Implementation</th>
   </tr>
   <tr>
-    <td style="width: 50%;"><img src="./visualization/combinedPreMask.png"">
+    <td style="width: 50%;"><img src="./visualization/combinedPreMask.png">
     <td style="width: 50%;">
       <pre lang="python"><code> 
-    def combineMasks(filledMask, backgroundMask):
-        return cv2.bitwise_and(filledMask, backgroundMask)
+def combineMasks(filledMask, backgroundMask):
+  return cv2.bitwise_and(filledMask, backgroundMask)
       </code></pre>
     </td>
   </tr>
 </table>
+
+Now let's put everything together. First we clip the scan, than we create a mask slice-by-slice by applying the eight steps:
+<p align="center">
+<pre lang="python"><code> 
+def createCoarseLungMaskOf(self,scan):
+  HounsfieldUnitRange = (-1000, -500)
+  clippedScan = self.clipScanToHounsfieldUnitRange(scan, HounsfieldUnitRange)
+  mask = self.createMaskForEachSliceOf(clippedScan)
+  return mask
+</code></pre>
+</p>
+
+As a reminder: The returned mask is a 3d numpy array. Additionally, all functions have been put in a class.
 
 ### Evaluation of preprocessing
 The goals of the preprocessing were:
@@ -218,11 +231,118 @@ Let's check if the table is removed:
 	<img src="./visualization/preprocessed3D.png" width=50% height=50%>
 </p>
 
-It can be seen that the table was sucessfully removed. However, some artifact remain (circled in red). Additionally the tube in the middle (circled in blue) is not a part of the lung, but it is part of the airways to provide the lung with air. The tube is called trachea. We will take care of these problems in the next step, but for now let's have a look at the background. It can be seen seen that the background seems to be the same color, but did we remove any lung pixels/voxels? For that we calculate the sensitivity on the vessel12 dataset:
+It can be seen that the table was sucessfully removed. However, some artifacts remain (circled in red). Additionally, the tube in the middle (circled in blue) is not a part of the lung, but it is part of the airways to provide the lung with air. The tube is called trachea. We will take care of these problems in the next step, but for now let's have a look at the background. It can be seen seen that the background seems to be the same color, but did we remove any lung pixels/voxels? For that we calculate the sensitivity on the vessel12 dataset:
 $$0.9999694 \mp 0,0000436$$
 It can be seen that some pixels are wrongly labeled as not lung. Nevertheless, the amount of wrongly labeled pixels is low. Additionally, the region of interest has been reduced from the entire image to a smaller mask. The average relative size is
 
-$$ {\sum \text{Predicted Mask} \over \sum \text{Actual Mask}} = 0.1864 = 18.64\%$$
+$$ {\sum \text{Predicted Mask} \over \sum \text{Actual Mask}} = 0.1864$$
 
 This means that the predicted mask is roughly 81% smaller than the original image. 
+
+## Lung Segmentation
+In the preprocessing step we have managed to get a relatively coarse lung mask. Let's refine this mask. The two main goals are:
+1. Remove the artifacts
+2. Remove the tracha and aerial ways
+
+### Loading the scan
+Before we get into that. There is one thing we haven't talked about yet and that is loading the scan. Now this step depends on the dataformat you are using. If you are using Vessel12, the file ending is **".mhd"**. We can load this file format using simpleITK. It is worth noting that simpleITK supports a variety of file formats, so just try yours. The ".mhd" file contains meta data and the scan:
+
+<p align="center">
+<pre lang="python"><code> 
+def readScanMetaFrom(scanPath):
+  return sitk.ReadImage(scanPath)
+</code></pre>
+</p>
+
+To get the actual scan without meta data we can use the following:
+<p align="center">
+<pre lang="python"><code> 
+def readScanMetaFrom(scanPath):
+  return sitk.ReadImage(scanPath)
+</code></pre>
+</p>
+Now we are good to go. So lets dive right into it.
+
+1. First, we use preprocessing and apply mask the scan:
+<p align="center">
+<pre lang="python"><code> 
+coarseMask = self.preprocessing.createCoarseLungMaskOf(self.scan)
+coarseScan = coarseMask*self.scan
+</code></pre>
+</p> 
+
+2. Remember we want to refine the mask right. So Let's create a function for that. The idea is the following: We clip the slice again, search for contours and decide if these contours are lung or not. We will do this by tracking the contours, but more on that later. The process of deciding if a contour is lung or not is included in the *createFineMaskFrom(...)* function.
+
+<p align="center">
+<pre lang="python"><code> 
+def refine(self, coarseScan):
+  HounsfieldUnitRange = (-1000, -500)
+  clippedScan = self.preprocessing.clipScanToHounsfieldUnitRange(coarseScan, HounsfieldUnitRange)
+  contoursForEachAxialSlice = self.findContoursForEachAxialSliceOf(clippedScan)
+  fineMask = self.createFineMaskFrom(contoursForEachAxialSlice)
+  return fineMask
+</code></pre>
+</p> 
+
+### Finding Contours
+We have covered the clipping in the preprocessing, so the next step is finding the contours. We will search for the contours in the axial slices. 
+
+1. Loop through the axial slices:
+def findContoursForEachAxialSliceOf(self, clippedScan):
+  numberOfAxialSlices = clippedScan.shape[0]
+  contoursForEachAxialSlice = [None] * numberOfAxialSlices
+  for i in range(0, numberOfAxialSlices):
+      axialSlice = clippedScan[i]
+      sliceContours = self.findContoursOf(axialSlice)
+      contoursForEachAxialSlice[i] = sliceContours
+  return contoursForEachAxialSlice
+</code></pre>
+</p> 
+
+2. The second step is to find the contours for each axial slice. We will use openCV's findContours for this. Let's take a look what the [documentation](https://docs.opencv.org/4.7.0/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0) is saying about the input image:  
+  *Source, an 8-bit single-channel image. Non-zero pixels are treated as 1's. Zero pixels remain 0's, so the image is treated as **binary**.*  
+This is important. The input image will be "converted" to binary. Why not make it binary in the way we want it. Another important thing is not explicitely written:  
+  The background is expected to be black and the foreground to be white. Our background is white and the foregroud - the lung - is black. This will cause *findContours* to find a contour around the entire image. We don't want that. Summing up, we have three things to consider:  
+    - The slice shold be binary
+    - The background should be black and the foreground white
+    - The slice should be 8-bit  
+  
+    We will deal with the first two together. First, we denoise the image and than we threshold the image. This time we use *THRESH_BINARY_INV* to invert the colors. The Lung is now white and the background black. After that we convert the binary image to 8-bit. Let's take a look at the code and the output image:
+
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Output</th>
+    <th style="width: 50%;">Implementation</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/mainPrepared.png">
+    <td style="width: 50%;">
+      <pre lang="python"><code> 
+def prepare(self, axialSlice):
+  denoisedAxialSlice = cv2.medianBlur(axialSlice, ksize=5)
+  binarizedAxialSlice = self.binarize(denoisedAxialSlice)
+  return binarizedAxialSlice
+
+@staticmethod
+def binarize(axialSlice):
+  _, binarizedSlice = cv2.threshold(axialSlice, thresh=axialSlice.max()-1,
+                                    maxval=1, type=cv2.THRESH_BINARY_INV)
+  return binarizedSlice.astype("uint8")
+      </code></pre>
+    </td>
+  </tr>
+</table>
+
+
+
+
+
+
+
+
+
+
+  
+
+
 
