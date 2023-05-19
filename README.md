@@ -232,10 +232,17 @@ Let's check if the table is removed:
 </p>
 
 It can be seen that the table was sucessfully removed. However, some artifacts remain (circled in red). Additionally, the tube in the middle (circled in blue) is not a part of the lung, but it is part of the airways to provide the lung with air. The tube is called trachea. We will take care of these problems in the next step, but for now let's have a look at the background. It can be seen seen that the background seems to be the same color, but did we remove any lung pixels/voxels? For that we calculate the sensitivity on the vessel12 dataset:
-$$0.9999694 \mp 0,0000436$$
+
+<p align="center">
+	0.9999694 &pm; 0.0000436
+</p>
+
 It can be seen that some pixels are wrongly labeled as not lung. Nevertheless, the amount of wrongly labeled pixels is low. Additionally, the region of interest has been reduced from the entire image to a smaller mask. The average relative size is
 
-$$ {\sum \text{Predicted Mask} \over \sum \text{Actual Mask}} = 0.1864$$
+<p align="center">
+	&sum; Predicted Mask / 	&sum; Actual Mask = 0.1864
+</p>
+
 
 This means that the predicted mask is roughly 81% smaller than the original image. 
 
@@ -285,9 +292,11 @@ def refine(self, coarseScan):
 </p> 
 
 ### Finding Contours
-We have covered the clipping in the preprocessing, so the next step is finding the contours. We will search for the contours in the axial slices. 
+We have covered the clipping in the preprocessing, so the next step is finding the contours. We will search for the contours in the axial slices.
 
 1. Loop through the axial slices:
+<p align="center">
+<pre lang="python"><code> 
 def findContoursForEachAxialSliceOf(self, clippedScan):
   numberOfAxialSlices = clippedScan.shape[0]
   contoursForEachAxialSlice = [None] * numberOfAxialSlices
@@ -299,16 +308,16 @@ def findContoursForEachAxialSliceOf(self, clippedScan):
 </code></pre>
 </p> 
 
+
 2. The second step is to find the contours for each axial slice. We will use openCV's findContours for this. Let's take a look what the [documentation](https://docs.opencv.org/4.7.0/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0) is saying about the input image:  
   *Source, an 8-bit single-channel image. Non-zero pixels are treated as 1's. Zero pixels remain 0's, so the image is treated as **binary**.*  
-This is important. The input image will be "converted" to binary. Why not make it binary in the way we want it. Another important thing is not explicitely written:  
-  The background is expected to be black and the foreground to be white. Our background is white and the foregroud - the lung - is black. This will cause *findContours* to find a contour around the entire image. We don't want that. Summing up, we have three things to consider:  
+This is important. The input image will be "converted" to binary. Why not make it binary in the way we want it. Another important thing is not explicitely written: The background is expected to be black and the foreground to be white. Our background is white and the foregroud - the lung - is black. This will cause *findContours* to find a contour around the entire image. We don't want that. Summing up, we have three things to consider:  
     - The slice shold be binary
     - The background should be black and the foreground white
-    - The slice should be 8-bit  
-  
-    We will deal with the first two together. First, we denoise the image and than we threshold the image. This time we use *THRESH_BINARY_INV* to invert the colors. The Lung is now white and the background black. After that we convert the binary image to 8-bit. Let's take a look at the code and the output image:
-
+    - The slice should be 8-bit
+ 
+    We will deal with the first two together. First, we denoise the image and than we threshold the image. This time we use *THRESH_BINARY_INV* to invert the colors. The Lung is now white and the background black. After that we convert the binary image to 8-bit. Let's take a look at the code and the output image.
+		
 <table style="width: 100%;">
   <tr>
     <th style="width: 50%;">Output</th>
@@ -319,30 +328,16 @@ This is important. The input image will be "converted" to binary. Why not make i
     <td style="width: 50%;">
       <pre lang="python"><code> 
 def prepare(self, axialSlice):
-  denoisedAxialSlice = cv2.medianBlur(axialSlice, ksize=5)
-  binarizedAxialSlice = self.binarize(denoisedAxialSlice)
-  return binarizedAxialSlice
+	denoisedAxialSlice = cv2.medianBlur(axialSlice, ksize=5)
+	binarizedAxialSlice = self.binarize(denoisedAxialSlice)
+	return binarizedAxialSlice
 
 @staticmethod
 def binarize(axialSlice):
-  _, binarizedSlice = cv2.threshold(axialSlice, thresh=axialSlice.max()-1,
-                                    maxval=1, type=cv2.THRESH_BINARY_INV)
-  return binarizedSlice.astype("uint8")
+	_, binarizedSlice = cv2.threshold(axialSlice, thresh=axialSlice.max()-1,
+					maxval=1, type=cv2.THRESH_BINARY_INV)
+  	return binarizedSlice.astype("uint8")
       </code></pre>
     </td>
   </tr>
 </table>
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
