@@ -564,7 +564,7 @@ def isMaskOverlapping(self, jaccardScore):
     return False
 </code></pre>
 </p>
-8. The second case can happen if the two lungs are detected as one contour and than detected in two contours in the next slice. In this case we assume that the contour is now roughly half as big. The merging is the practically the same, but in reverse: Two masks merged into one:   
+8. The second case can happen if the two lungs are detected as one contour and than detected in two contours in the next slice. In this case we assume that the contour is now roughly half as big. The merging is the practically the same, but in reverse: Two masks merged into one. An image of the splitting case is shown below. It is worth noting that the merging case would look the same, because we are only displaying the difference and not which slice is the current and previous one.    
 <p align="center">
 <pre lang="python"><code> 
 def isMaskSplittedIntoTwoMasks(self, jaccardScore, currentSize, prevSize):
