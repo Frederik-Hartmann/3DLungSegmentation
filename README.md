@@ -524,15 +524,14 @@ def isLungMask(self,mask, prevMask):
   jaccardScore = self.computeJaccardScore(mask, prevMask)
   currentSize = cv2.countNonZero(mask)
   prevSize = cv2.countNonZero(prevMask)
-
   if self.isMaskOverlapping(jaccardScore):
-      return True
+	return True
   elif self.isMaskSplittedIntoTwoMasks(jaccardScorecurrentSize, prevSize):
-      return True
+	return True
   elif self.isMaskMergedFromTwoMasks(jaccardScorecurrentSize, prevSize):
-      return True
+	return True
   else:
-      return False
+	return False
 </code></pre>
 </p> 
 
@@ -540,8 +539,7 @@ def isLungMask(self,mask, prevMask):
 <p align="center">
 	jaccard score = intersection / 	union 
 </p>
-
-    We can comput the intersection with using and **AND** Gate, the union using an **OR** Gate;
+We can comput the intersection with using and **AND** Gate, the union using an **OR** Gate;
 <p align="center">
 <pre lang="python"><code> 
 def computeJaccardScore(mask, prevMask):
@@ -564,7 +562,7 @@ def isMaskOverlapping(self, jaccardScore):
     return False
 </code></pre>
 </p>
-8. The second case can happen if the two lungs are detected as one contour and than detected in two contours in the next slice. In this case we assume that the contour is now roughly half as big. The merging is the practically the same, but in reverse: Two masks merged into one. An image of the splitting case is shown below. It is worth noting that the merging case would look the same, because we are only displaying the difference and not which slice is the current and previous one.    
+8. The second case can happen if the two lungs are detected as one contour and than detected in two contours in the next slice. In this case we assume that the contour is now roughly half as big. The merging is the practically the same, but in reverse: Two masks merged into one.   
 <p align="center">
 <pre lang="python"><code> 
 def isMaskSplittedIntoTwoMasks(self, jaccardScore, currentSize, prevSize):
@@ -582,7 +580,8 @@ def isMaskMergedFromTwoMasks(self, jaccardScore, currentSize, prevSize):
   else:
     return False
 </code></pre>
-</p>   
+</p>
+This us an  image of an actual splitting case. It is worth noting that the merging case would look the same, because we are only displaying the difference and not which slice is the current and previous one.
 <p align="center">
 	<img src="./visualization/MaskSplitting.png" width=50% height=50%>
 </p>
