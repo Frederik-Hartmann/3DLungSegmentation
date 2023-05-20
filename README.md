@@ -584,5 +584,20 @@ def isMaskMergedFromTwoMasks(self, jaccardScore, currentSize, prevSize):
 </code></pre>
 </p>   
 <p align="center">
-	<img src="./visualization/MaskSplitting.png" width=30% height=30%>
+	<img src="./visualization/MaskSplitting.png" width=50% height=50%>
 </p>
+
+### A small Evaluation
+Remember the picture with a lot of contours? No? No problem. Here it is again:
+<p align="center">
+	<img src="./visualization/ManyContours.png" width=50% height=50%>
+</p>
+Can you guess which ones are lung contours? Let's take a look at what our tracking predicts:
+<p align="center">
+	<img src="./visualization/ManyContoursPrediction.png" width=50% height=50%>
+</p>
+Our tracking precits the three at the bottom to be lung contours. But is that correct? At the time of writing I don't actually know the answer. Let's compare it to the Ground Truth to find out. 
+<p align="center">
+	<img src="./visualization/ManyContoursComparison.png" width=50% height=50%>
+</p>
+The green part is where our prediction is correct, the red part where its missing pixels. All in all our tracking was correct and identified the three contours correctly. Some pixels are missing, but not too bad.
