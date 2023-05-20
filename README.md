@@ -341,3 +341,33 @@ def binarize(axialSlice):
     </td>
   </tr>
 </table>
+
+3. Now that we have prepared our slice it is time to find the contours. But how many lung contours can realistically be in a axial slice? You might think two lungs = two contours. However, this is only the case in three-dimensions. The maximum number of lung contours is empirically chosen to be four. We will first look at the code and than two examples of the contours.
+<p align="center">
+<pre lang="python"><code> 
+def findContoursOf(self, axialSlice):
+  preparedSlice = self.prepare(axialSlice)
+  contours,_ = cv2.findContours(preparedSlice, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)
+  contoursSortedByLength = sorted(contours, key=lambda contour:len(contour), reverse=True)
+  reducedNumberOfContours = self.reduceNumberOf(contoursSortedByLength)
+  return reducedNumberOfContours
+def reduceNumberOf(self, contoursSortedByLength):
+  if len(contoursSortedByLength) > self.MAX_NUMBER_OF_CONTOURS_TO_BE_TRACKED:
+      return contoursSortedByLength[:self.MAX_NUMBER_OF_CONTOURS_TO_BE_TRACKED]
+  else:
+      return contoursSortedByLength
+</code></pre>
+</p> 
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Two Contours</th>
+    <th style="width: 50%;">More Contours</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/TwoContours.png"></td>
+    <td style="width: 50%;"><img src="./visualization/ManyContours.png"></td>
+  </tr>
+</table>  
+We will take a look at how many contours are correct in the right example later on.
+
+4. 
