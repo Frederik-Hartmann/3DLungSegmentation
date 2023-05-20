@@ -462,7 +462,7 @@ And finally some pictures:
     <td style="width: 33.33%;"><img src="./visualization/TwoContoursContour1.png">
   </tr>
 </table>
-And even more. Rember, we chose to but the maximum number of contours at four.
+And even more. Rember, we chose the maximum number of contours at four. The tradeoff here is runtime vs accuracy. The more contours the higher the runtime, the higher the accuracy.
 <table style="width: 100%;">
   <tr><th colspan="5">More contours</th></tr>
   <tr>
@@ -482,7 +482,7 @@ And even more. Rember, we chose to but the maximum number of contours at four.
   </tr>
 </table>
 
-4. For the comparison, we look at the two jaccard score. It accounts for the overlap (intersection) and the union of the current mask and the previus mask. Instead of the combination, the difference is displayed for visualization purposes.
+1. For the comparison, we look at the two jaccard score. It accounts for the overlap (intersection) and the union of the current mask and the previus mask. Instead of the combination, the difference is displayed for visualization purposes.
 <table style="width: 100%;">
   <tr><th colspan="2">Two contours</th></tr>
   <tr>
@@ -513,4 +513,76 @@ And even more. Rember, we chose to but the maximum number of contours at four.
 </table>
 You can see that all comparisons look relatively good. Sure, some differences are a bit bigger and some are a bit smaller, but nonetheless, the difference doesn't seem that big. So are all of the masks displayed here a lung contour? The answer is surpringly no, because each contour has to be **continuously** tracked from the center slice. In the next steps we will take a look at the decision making and the results of the tracking.
 
-5. 
+5. For the decision making, three cases are considered:
+   1. **Normal case**: The contour got slightly bigger or smaller
+   2. **Splitting case**: One Contour split into two contours
+   3. **Merging  case**: Two contours merged into on contour
+  Let's put that into code:
+<p align="center">
+<pre lang="python"><code> 
+def isLungMask(self,mask, prevMask):
+  jaccardScore = self.computeJaccardScore(mask, prevMask)
+  currentSize = cv2.countNonZero(mask)
+  prevSize = cv2.countNonZero(prevMask)
+
+  if self.isMaskOverlapping(jaccardScore):
+      return True
+  elif self.isMaskSplittedIntoTwoMasks(jaccardScorecurrentSize, prevSize):
+      return True
+  elif self.isMaskMergedFromTwoMasks(jaccardScorecurrentSize, prevSize):
+      return True
+  else:
+      return False
+</code></pre>
+</p> 
+
+6. Now we need to define each case. But before we do that let's look at the jaccard score:
+<p align="center">
+	jaccard score = intersection / 	union 
+</p>
+
+    We can comput the intersection with using and **AND** Gate, the union using an **OR** Gate;
+<p align="center">
+<pre lang="python"><code> 
+def computeJaccardScore(mask, prevMask):
+  intersection = cv2.countNonZero(cv2.bitwise_and(mask,prevMask))
+  union = cv2.countNonZero(cv2.bitwise_or(mask,prevMask))
+  if union != 0:
+    return intersection/union
+  else:
+    return 1.0
+</code></pre>
+</p> 
+
+7. Now we can define the each case. In the first case: If the jaccard score is bigger than the threshold - which has been set to 0.1 - we assume its a lung mask.
+<p align="center">
+<pre lang="python"><code> 
+def isMaskOverlapping(self, jaccardScore):
+  if jaccardScore > self.JACCARD_THRESHOLD:
+    return True
+  else:
+    return False
+</code></pre>
+</p>
+8. The second case can happen if the two lungs are detected as one contour and than detected in two contours in the next slice. In this case we assume that the contour is now roughly half as big. The merging is the practically the same, but in reverse: Two masks merged into one:   
+<p align="center">
+<pre lang="python"><code> 
+def isMaskSplittedIntoTwoMasks(self, jaccardScore, currentSize, prevSize):
+  if jaccardScore > self.JACCARD_THRESHOLD/3 and np.isclose(2*currentSize, prevSize, rtol=0.3):
+    return True
+  else:
+    return False
+</code></pre>
+</p>   
+<p align="center">
+<pre lang="python"><code> 
+def isMaskMergedFromTwoMasks(self, jaccardScore, currentSize, prevSize):
+  if jaccardScore > self.JACCARD_THRESHOLD/3 and np.isclose(currentSize, 2*prevSize, rtol=0.3):
+    return True
+  else:
+    return False
+</code></pre>
+</p>   
+<p align="center">
+	<img src="./visualization/MaskSplitting.png" width=30% height=30%>
+</p>
