@@ -482,6 +482,7 @@ And even more. Rember, we chose to but the maximum number of contours at four.
 
 4. For the comparison, we look at the two jaccard score. It accounts for the overlap (intersection) and the union of the current mask and the previus mask. Instead of the combination, the difference is displayed for visualization purposes.
 <table style="width: 100%;">
+  <tr><th colspan="2">Two contours</th></tr>
   <tr>
     <th style="width: 50%;">Comparison contour 1</th>
     <th style="width: 50%;">Comparison contour 2</th>
@@ -492,6 +493,7 @@ And even more. Rember, we chose to but the maximum number of contours at four.
   </tr>
 </table>
 <table style="width: 100%;">
+  <tr><th colspan="4">More contours</th></tr>
   <tr>
     <th style="width: 25%;">Comparison contour 1</th>
     <th style="width: 25%;">Comparison contour 2</th>
