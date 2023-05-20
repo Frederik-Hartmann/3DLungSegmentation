@@ -461,7 +461,7 @@ And finally some pictures:
     <td style="width: 33.33%;"><img src="./visualization/TwoContoursContour1.png">
   </tr>
 </table>
-And even more:
+And even more. Rember, we chose to but the maximum number of contours at four.
 <table style="width: 100%;">
   <tr>
     <th style="width: 20%;">All Contours</th>
@@ -479,3 +479,34 @@ And even more:
     <td style="width: 20%;"><img src="./visualization/ManyContoursContour3.png">
   </tr>
 </table>
+
+4. For the comparison, we look at the two jaccard score. It accounts for the overlap (intersection) and the union of the current mask and the previus mask. Instead of the combination, the difference is displayed for visualization purposes.
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Comparison contour 1</th>
+    <th style="width: 50%;">Comparison contour 2</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/TwoContoursTrackingContour0.png"></td>
+    <td style="width: 50%;"><img src="./visualization/TwoContoursTrackingContour1.png">
+  </tr>
+</table>
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 25%;">Comparison contour 1</th>
+    <th style="width: 25%;">Comparison contour 2</th>
+    <th style="width: 25%;">Comparison contour 3</th>
+    <th style="width: 25%;">Comparison contour 4</th>
+
+  </tr>
+  <tr>
+    <td style="width: 25%;"><img src="./visualization/ManyContoursTrackingContour0.png"></td>
+    <td style="width: 25%;"><img src="./visualization/ManyContoursTrackingContour1.png">
+    <td style="width: 25%;"><img src="./visualization/ManyContoursTrackingContour2.png">
+    <td style="width: 25%;"><img src="./visualization/ManyContoursTrackingContour3.png">
+
+  </tr>
+</table>
+You can see that all comparisons look relatively good. Sure, some differences are a bit bigger and some are a bit smaller, but nonetheless, the difference doesn't seem that big. So are all of the masks displayed here a lung contour? The answer is surpringly no, because each contour has to be **continuously** tracked from the center slice. In the next steps we will take a look at the decision making and the results of the tracking.
+
+5. 
