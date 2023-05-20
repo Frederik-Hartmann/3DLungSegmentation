@@ -450,6 +450,7 @@ def getCandidateMasksFrom(self, CurrentContours):
 </p> 
 And finally some pictures:
 <table style="width: 100%;">
+  <tr><th colspan="3">Two contours</th></tr>
   <tr>
     <th style="width: 33.33%;">All Contours</th>
     <th style="width: 33.33%;">Mask for contour 1</th>
@@ -463,6 +464,7 @@ And finally some pictures:
 </table>
 And even more. Rember, we chose to but the maximum number of contours at four.
 <table style="width: 100%;">
+  <tr><th colspan="5">More contours</th></tr>
   <tr>
     <th style="width: 20%;">All Contours</th>
     <th style="width: 20%;">Mask for contour 1</th>
