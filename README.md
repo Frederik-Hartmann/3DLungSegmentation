@@ -290,7 +290,7 @@ coarseScan = coarseMask*self.scan
   </tr>
 </table>  
 
-1. Remember we want to refine the mask right. So Let's create a function for that. The idea is the following: We clip the slice again, search for contours and decide if these contours are lung or not. We will do this by tracking the contours, but more on that later. The process of deciding if a contour is lung or not is included in the *createFineMaskFrom(...)* function.
+2. Remember we want to refine the mask right. So Let's create a function for that. The idea is the following: We clip the slice again, search for contours and decide if these contours are lung or not. We will do this by tracking the contours, but more on that later. The process of deciding if a contour is lung or not is included in the *createFineMaskFrom(...)* function.
 
 <p align="center">
 <pre lang="python"><code> 
@@ -383,4 +383,99 @@ def reduceNumberOf(self, contoursSortedByLength):
 </table>  
 We will take a look at how many contours are correct in the right example later on.
 
-4. 
+### Tracking the Contours
+We now have a bunch of contours, but which ones are actually lung contours? Which ones are artifacts? Which ones are trachea? For this we will track the contours. We start in the center slice and assume all contours there are lung contours.We now go one slice up and compare the contours, if they are more or less the same: it is a lung contour too! We now go on slice up again and compare the contours to the ones in the slice below and so on. We will do exactly the same for the center to the bottom, it is just reversed. Let's get into it.
+
+1. First we create one maks for the top half of the 3d image and one for the bottom half:  
+<p align="center">
+<pre lang="python"><code> 
+def createFineMaskFrom(self, contoursForEachAxialSlice):
+  refinedBottomMask = self.refineMaskBytrackingLungContours(contoursForEachAxialSlice, direction="centerToTop")
+  refinedTopMask = self.refineMaskBytrackingLungContours(contoursForEachAxialSlice, direction="centerToBottom")
+  refinedMask = self.addMasks(refinedBottomMask,refinedTopMask)
+  return refinedMask
+</code></pre>
+</p> 
+
+1. Now we cycle through each axial slice contour by contour and compare it to the counters of the previous slice. Don't worry too much about the code at the top. The important steps are happening in the for loop. For a closer look at the top functions,refer to this [file](lungSegmentation.py).
+<p align="center">
+<pre lang="python"><code> 
+def refineMaskBytrackingLungContours(self, contoursForEachAxialSlice, direction):
+  startIndex = self.getStartIndex(contoursForEachAxialSlice, direction)
+  finalIndex = self.getFinalIndex(contoursForEachAxialSlice, direction)
+  stepDirection = self.stepDirectionToInteger(direction)
+  refinedMask = np.zeros(self.scanDimensions)
+  
+  centerContours = contoursForEachAxialSlice[startIndex]
+  previousMasks = self.getCandidateMasksFrom(centerContours)
+  for i in range(startIndex, finalIndex, stepDirection):
+      CurrentContours = contoursForEachAxialSlice[i]
+      lungMasks = self.comparePreviousMasksToCurrentContours(previousMasks,CurrentContours)
+      lungMask = self.createSingleMaskFrom(lungMasks)
+      refinedMask[i] = lungMask
+      previousMasks = lungMasks
+  return refinedMask
+</code></pre>
+</p>
+
+2. For the comparison we will need a mask rather than a contour. *getCandidateMasksFrom* is doing just that. We will have a look at it next - also with pictures. After that we compare every current mask to the masks from the previous slice. Once we have found a match, we assume it is a lung mask. We not quit the search for this current mask and continue with next one. If no match is found, we assume it is not lung. We will also have a close look at *isLungMask* and how we decide if its a lung mask or not, but first we look at *getCandidateMasksFrom*.
+<p align="center">
+<pre lang="python"><code> 
+def comparePreviousMasksToCurrentContours(self, previousMasks,CurrentContours):
+  candidateMasks = self.getCandidateMasksFrom(CurrentContours)
+  lungMasks = [
+  for mask in candidateMasks:
+    for prevMask in previousMasks:
+      if self.isLungMask(mask, prevMask):
+        lungMasks.append(mask)
+        break # breaks inner loop
+  
+  return lungMasks
+</code></pre>
+</p> 
+
+3. Let us quickly have a look at the code before we look at some pictures. The idea is simple: We create one mask for each contour:
+<p align="center">
+<pre lang="python"><code> 
+def getCandidateMasksFrom(self, CurrentContours):
+  numberOfContours = len(CurrentContours)
+  candidateMasks = [None] * numberOfContours
+  sliceDimensions = self.scanDimensions[1:3]
+  for i in range(0,numberOfContours):
+    candidateMask = np.zeros(sliceDimensions, dtype="uint8")
+    cv2.drawContours(candidateMask, [CurrentContours[i]], contourIdx=-1, color=1, thickness=cv2.FILLED)
+    candidateMasks[i] = candidateMask
+  return candidateMasks
+</code></pre>
+</p> 
+And finally some pictures:
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 33.33%;">All Contours</th>
+    <th style="width: 33.33%;">Mask for contour 1</th>
+    <th style="width: 33.33%;">Mask for contour 2</th>
+  </tr>
+  <tr>
+    <td style="width: 33.33%;"><img src="./visualization/TwoContours.png"></td>
+    <td style="width: 33.33%;"><img src="./visualization/TwoContoursContour0.png">
+    <td style="width: 33.33%;"><img src="./visualization/TwoContoursContour1.png">
+  </tr>
+</table>
+And even more:
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 20%;">All Contours</th>
+    <th style="width: 20%;">Mask for contour 1</th>
+    <th style="width: 20%;">Mask for contour 2</th>
+    <th style="width: 20%;">Mask for contour 3</th>
+    <th style="width: 20%;">Mask for contour 4</th>
+
+  </tr>
+  <tr>
+    <td style="width: 20%;"><img src="./visualization/ManyContours.png"></td>
+    <td style="width: 20%;"><img src="./visualization/ManyContoursContour0.png">
+    <td style="width: 20%;"><img src="./visualization/ManyContoursContour1.png">
+    <td style="width: 20%;"><img src="./visualization/ManyContoursContour2.png">
+    <td style="width: 20%;"><img src="./visualization/ManyContoursContour3.png">
+  </tr>
+</table>
