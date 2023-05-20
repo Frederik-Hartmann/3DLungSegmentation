@@ -276,9 +276,21 @@ Now we are good to go. So lets dive right into it.
 coarseMask = self.preprocessing.createCoarseLungMaskOf(self.scan)
 coarseScan = coarseMask*self.scan
 </code></pre>
+</p>
+</code></pre>
 </p> 
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Preprocessing Mask</th>
+    <th style="width: 50%;">Preprocessing Mask * Scan</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/coarseMask.png"></td>
+    <td style="width: 50%;"><img src="./visualization/coarseMaskApplied.png"></td>
+  </tr>
+</table>  
 
-2. Remember we want to refine the mask right. So Let's create a function for that. The idea is the following: We clip the slice again, search for contours and decide if these contours are lung or not. We will do this by tracking the contours, but more on that later. The process of deciding if a contour is lung or not is included in the *createFineMaskFrom(...)* function.
+1. Remember we want to refine the mask right. So Let's create a function for that. The idea is the following: We clip the slice again, search for contours and decide if these contours are lung or not. We will do this by tracking the contours, but more on that later. The process of deciding if a contour is lung or not is included in the *createFineMaskFrom(...)* function.
 
 <p align="center">
 <pre lang="python"><code> 
@@ -342,7 +354,7 @@ def binarize(axialSlice):
   </tr>
 </table>
 
-3. Now that we have prepared our slice it is time to find the contours. But how many lung contours can realistically be in a axial slice? You might think two lungs = two contours. However, this is only the case in three-dimensions. The maximum number of lung contours is empirically chosen to be four. We will first look at the code and than two examples of the contours.
+3. Now that we have prepared our slice it is time to find the contours. But how many lung contours can realistically be in a axial slice? You might think two lungs = two contours. However, this is only the case in three-dimensions. The maximum number of lung contours is empirically chosen to be four. We will first look at the code and than at two examples of the contours. Additionally, we use *RETR_EXTERNAL* to retrieve only the outer contours.
 <p align="center">
 <pre lang="python"><code> 
 def findContoursOf(self, axialSlice):
@@ -351,6 +363,7 @@ def findContoursOf(self, axialSlice):
   contoursSortedByLength = sorted(contours, key=lambda contour:len(contour), reverse=True)
   reducedNumberOfContours = self.reduceNumberOf(contoursSortedByLength)
   return reducedNumberOfContours
+
 def reduceNumberOf(self, contoursSortedByLength):
   if len(contoursSortedByLength) > self.MAX_NUMBER_OF_CONTOURS_TO_BE_TRACKED:
       return contoursSortedByLength[:self.MAX_NUMBER_OF_CONTOURS_TO_BE_TRACKED]
