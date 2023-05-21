@@ -405,15 +405,14 @@ def refineMaskBytrackingLungContours(self, contoursForEachAxialSlice, direction)
   finalIndex = self.getFinalIndex(contoursForEachAxialSlice, direction)
   stepDirection = self.stepDirectionToInteger(direction)
   refinedMask = np.zeros(self.scanDimensions)
-  
   centerContours = contoursForEachAxialSlice[startIndex]
   previousMasks = self.getCandidateMasksFrom(centerContours)
   for i in range(startIndex, finalIndex, stepDirection):
-      CurrentContours = contoursForEachAxialSlice[i]
-      lungMasks = self.comparePreviousMasksToCurrentContours(previousMasks,CurrentContours)
-      lungMask = self.createSingleMaskFrom(lungMasks)
-      refinedMask[i] = lungMask
-      previousMasks = lungMasks
+	CurrentContours = contoursForEachAxialSlice[i]
+	lungMasks = self.comparePreviousMasksToCurrentContours(previousMasks,CurrentContours)
+	lungMask = self.createSingleMaskFrom(lungMasks)
+	refinedMask[i] = lungMask
+	previousMasks = lungMasks
   return refinedMask
 </code></pre>
 </p>
