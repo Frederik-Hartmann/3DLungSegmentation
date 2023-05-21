@@ -580,7 +580,7 @@ def isMaskMergedFromTwoMasks(self, jaccardScore, currentSize, prevSize):
     return False
 </code></pre>
 </p>
-This us an  image of an actual splitting case. It is worth noting that the merging case would look the same, because we are only displaying the difference and not which slice is the current and previous one.
+This us an  image of an actual splitting case. It is worth noting that the merging case would look the same, because we are only displaying the difference and not which slice is the current and previous one. You can see that the lung in the previous slice was one cotour. Now there are two.
 <p align="center">
 	<img src="./visualization/MaskSplitting.png" width=50% height=50%>
 </p>
