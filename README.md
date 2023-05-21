@@ -614,16 +614,6 @@ The Final step is the posprocessing. For this morphological operations in the fo
       closedSlice = self.closeHolesForEachCompoment(mask[i])
       closedMask[i] = closedSlice 
     return closedMask
-</code></p>
-<p align="center">
-<pre lang="python"><code> 
-def closeHolesForEachAxialSlice(self, mask):
-  closedMask = np.zeros(mask.shape, dtype="uint8")
-  numberOfAxialSlices = mask.shape[0]
-  for i in range(0, numberOfAxialSlices):
-    closedSlice = self.closeHolesForEachCompoment(mask[i])
-    closedMask[i] = closedSlice 
-  return closedMask
 </code></pre>
 </p>
 
