@@ -652,3 +652,47 @@ In the figure below the closing is perfomed for each component separately and fo
   </tr>
 </table>  
    
+## Evaluation
+We have now assembled a lung segmentation. Remember the image we started with? You could still see the person. We reduced our region of interest in the preprocessing and found a lung, but there were artifacts and the trachea (the tube looking thing) was still clearly visible. Let's see if the changes we made were successfull:
+<p align="center">
+	<img src="./visualization/lungSegmentation3d.png" width=50% height=50%>
+</p>
+You can see that the artifacts were sucessfully removed and the trachea is no longer visible. Let us now take a look at axial slices. We will look at a good performing example and the worst performing example I could find.
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Good Case</th>
+    <th style="width: 50%;">Worst Case</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/GoodCase.png"></td>
+    <td style="width: 50%;"><img src="./visualization/WorstCase.png"></td>
+  </tr>
+</table>
+The slice on the left side shows an almost perfect segmentation. The overlap of the predicted lung and the actual lung is displayed in green. The two black dots and the middle are the trachea and aerial ways. The were predicted by our algorithm to not be lung. Which is correct. On right side the worst case is displayed. A large part of the trachea is wrongly classified as lung. Now let's have a look on our image with two contours and see how it did:
+<p align="center">
+	<img src="./visualization/TwoContoursResult.png" width=50% height=50%>
+</p>
+The right lung is mostly classified correctly. Only two small areas of the trachea are wrongly classified. However, on the left side it can be seen that the trachea was not removed, despite the fact that it is not connected to the lung. The solution to this problem could be retracking the lung from the bottom to the top as the trachea has been correctly removed in the outer parts which can be seen in the 3d scan or the small evaluation in the preprocessing. 
+
+### Metrics
+Okay we have seen a lot of slices and scans. Let us put it into number now. We will use the jaccard score as a metric and evaluate it on the Vessel12 dataset. It is worth noting that the Vessel12 dataset is not specifically made for lung segmentation, but rather for vessel segmentation. So the results are only to provide an idea of the perfomance of the algoithm. The dataset consists of twenty ct scans. Let's see the results:
+<p align="center">
+	jaccard score = 0.9779 &pm; 0.0103
+</p>
+That doesn't look to bad!
+
+## Limitations
+Now we will recap the assumptions we made that ensure the basic functioning and than we will discuss the problems of the algorithm. In total three assumptions were made:
+- The width in pixels of the table is lower than 25 pixels.
+- The lung is surrounded by other tissues from the left and the right in sagittal slices
+- All contours in the center slice are lung
+
+If the first two conditions are not met, the algorithm will output "randomly". If the third condition is not met, it will perform worse. A possible lifting of the first condition is the introduction of a width relative to the size of the scan. The third contition could potentially be removed by retracking the lung as explained above.
+
+The current algorithm has two problems:
+1. The thachea in the center slices is not perfectly removed in some scenarios
+2. The contours do not precisely follow the lung contours if for example a vessel is at the edge for the lung
+   
+The origin of the first problem is the third assumption. Hence, it has the same possible solution. The second problem arises from the usage of contours to create the mask rather than from the image "directly". Kmeans has been employed to resample the image. Another less computationaly heavy approach is simply the preparation step of the preprocessing - clipping and thresholding. In abscence of an perfect ground truth this approaches have been implemented, but could not be evaluated. Therefore, you will not find them in this repository. 
+
+
