@@ -695,4 +695,7 @@ The current algorithm has two problems:
    
 The origin of the first problem is the third assumption. Hence, it has the same possible solution. The second problem arises from the usage of contours to create the mask rather than from the image "directly". Kmeans has been employed to resample the image. Another less computationaly heavy approach is simply the preparation step of the preprocessing - clipping and thresholding. In abscence of an perfect ground truth this approaches have been implemented, but could not be evaluated. Therefore, you will not find them in this repository. 
 
+## Conclusion
+All in all, a algorithm for lung segmentation has been sucessfully implemented. Nevertheless, there is still room for improvement as described above. I hope you could take something away from this tutorial and **have a great day!**
+
 
