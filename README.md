@@ -640,10 +640,10 @@ def closeComponent(componentImage):
 </code></pre>
 </p>
 
-In the figure below the closing is perfomed for each component seperately and for all componets together. You can see that the lung is incorreclty connected at the top when no sperate componets are used.
+In the figure below the closing is perfomed for each component separately and for all componets together. You can see that the lung is incorreclty connected at the top when no sperate componets are used.
 <table style="width: 100%;">
   <tr>
-    <th style="width: 50%;">Seperate Components</th>
+    <th style="width: 50%;">Separate Components</th>
     <th style="width: 50%;">No Components</th>
   </tr>
   <tr>
