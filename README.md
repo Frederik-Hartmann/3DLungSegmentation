@@ -599,4 +599,67 @@ Our tracking precits the three at the bottom to be lung contours. But is that co
 <p align="center">
 	<img src="./visualization/ManyContoursComparison.png" width=50% height=50%>
 </p>
-The green part is where our prediction is correct, the red part where its missing pixels. All in all our tracking was correct and identified the three contours correctly. Some pixels are missing, but not too bad.
+The green part is where our prediction is correct, the red part where its missing pixels. All in all our tracking was correct and identified the three contours correctly. Some pixels are missing, but not too bad. Good stuff.
+
+## Postprocessing
+The Final step is the posprocessing. For this morphological operations in the form of closing is performed.
+
+1. First we loop through the axial slices
+<p align="center">
+<pre lang="python"><code> 
+  def closeHolesForEachAxialSlice(self, mask):
+    closedMask = np.zeros(mask.shape, dtype="uint8")
+    numberOfAxialSlices = mask.shape[0]
+    for i in range(0, numberOfAxialSlices):
+      closedSlice = self.closeHolesForEachCompoment(mask[i])
+      closedMask[i] = closedSlice 
+    return closedMask
+</code></p>
+<p align="center">
+<pre lang="python"><code> 
+def closeHolesForEachAxialSlice(self, mask):
+  closedMask = np.zeros(mask.shape, dtype="uint8")
+  numberOfAxialSlices = mask.shape[0]
+  for i in range(0, numberOfAxialSlices):
+    closedSlice = self.closeHolesForEachCompoment(mask[i])
+    closedMask[i] = closedSlice 
+  return closedMask
+</code></pre>
+</p>
+
+2. The Closing is perfomed for each contour/compoment seperately. This will avoid them growing together:
+
+<p align="center">
+<pre lang="python"><code> 
+def closeHolesForEachCompoment(self, axialSlice):
+  mask = np.zeros(axialSlice.shape, dtype="uint8")
+  numberOfLabels, labelImage = cv2.connectedComponents(axialSlice)
+  for label in range(1, numberOfLabels):
+    componentImage = np.array(labelImage == label, dtype="uint8")
+    closedSlice = self.closeComponent(componentImage)
+    mask += closedSlice
+  return mask    
+</code></pre>
+</p>
+
+3. And finally the closing:
+<p align="center">
+<pre lang="python"><code> 
+def closeComponent(componentImage):
+  kernel = cv2.getStructuringElement(shape=cv2.MORPH_RECT, ksize=(15,15))  
+  return cv2.morphologyEx(componentImage, cv2.MORPH_CLOSE, kernel)
+</code></pre>
+</p>
+
+In the figure below the closing is perfomed for each component seperately and for all componets together. You can see that the lung is incorreclty connected at the top when no sperate componets are used.
+<table style="width: 100%;">
+  <tr>
+    <th style="width: 50%;">Seperate Components</th>
+    <th style="width: 50%;">No Components</th>
+  </tr>
+  <tr>
+    <td style="width: 50%;"><img src="./visualization/WithComponents.png"></td>
+    <td style="width: 50%;"><img src="./visualization/WithoutComponents.png"></td>
+  </tr>
+</table>  
+   
