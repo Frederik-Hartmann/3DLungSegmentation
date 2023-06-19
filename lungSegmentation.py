@@ -31,7 +31,7 @@ class LungSegmentation:
         coarseScan = coarseMask*self.scan
         fineMask = self.refine(coarseScan)
         postprocessedMask = self.postprocessing.postprocessing(fineMask)
-        return postprocessedMask, self.scan
+        return postprocessedMask
     
     def refine(self, coarseScan):
         HounsfieldUnitRange = (-1000, -500)
