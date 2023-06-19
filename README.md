@@ -1,5 +1,13 @@
 # Lung segmentation in 3D computed tomography scans
 
+Authors: [Frederik Hartmann](https://github.com/Frederik-Hartmann), [Yusuf Baran Tanrıverdi](https://www.github.com/yusuftengriverdi)
+\
+*Within the scope of the Advanced Image Analysis course taught by [Prof. Alessandro Bria](https://www.unicas.it/didattica/docenti/teacherinfo.aspx?nome_cognome=alessandro_bria). You can reach the full report [here](https://yusuftengriverdi.github.io/blog/2023/04/15/lung_segmentation_3d).*
+\
+[Erasmus Mundus Joint Master's Degree in Medical Imaging and Application](https://maiamaster.udg.edu/)
+\
+April 2023
+
 In this tutorial it is explained how to segment a lung in a a 3d CT scan. First let's take a look at a CT scan.
 
 <p align="center">
