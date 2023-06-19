@@ -70,3 +70,23 @@ class Ploting:
         plt.legend([patch1, patch2, patch3], ["True Positive", "False Positive","False Negative"], loc='upper right')
         plt.axis("off")
         plt.show()
+    
+    @staticmethod
+    def trackingComparision(currentMask, prevMask, name):
+        # for coloring
+        tp = cv2.bitwise_and(currentMask,prevMask)
+        xor = cv2.bitwise_xor(currentMask, prevMask)
+
+        cmap1 = mpl.colors.ListedColormap(['none', 'green'])
+        cmap2 = mpl.colors.ListedColormap(['none', 'red'])
+
+        plt.imshow(tp,  cmap=cmap1, alpha=0.5*(tp>0), interpolation="none")
+        plt.imshow(xor,  cmap=cmap2, alpha=0.5*(xor>0), interpolation="none")
+
+        patch1 = plt.Rectangle((0, 0), 1, 1, color=cmap1(1.0))
+        patch2 = plt.Rectangle((0, 0), 1, 1, color=cmap2(1.0))
+
+        # add the legend to the plot
+        plt.legend([patch1, patch2], ["Overlapping", "Difference"], loc='upper right')
+        plt.axis("off")
+        plt.show()
