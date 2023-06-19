@@ -1,7 +1,7 @@
 ## Installation
 It is recommended to use a virtual environment:
 ```shell
-  python -m venv myenv
+  python -m venv venv
 ```
 To install the libraries:
 ```shell
