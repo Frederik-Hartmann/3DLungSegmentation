@@ -18,6 +18,7 @@ class LungSegmentation:
         self.scan = self.metaToScan()
         self.scanDimensions = self.scan.shape
 
+
     @staticmethod
     def readScanMetaFrom(scanPath):
         return sitk.ReadImage(scanPath)
@@ -30,7 +31,7 @@ class LungSegmentation:
         coarseScan = coarseMask*self.scan
         fineMask = self.refine(coarseScan)
         postprocessedMask = self.postprocessing.postprocessing(fineMask)
-        return postprocessedMask
+        return postprocessedMask, self.scan
     
     def refine(self, coarseScan):
         HounsfieldUnitRange = (-1000, -500)
@@ -92,6 +93,7 @@ class LungSegmentation:
             lungMask = self.createSingleMaskFrom(lungMasks)
             refinedMask[i] = lungMask
             previousMasks = lungMasks
+
         return refinedMask
 
     @staticmethod
@@ -103,7 +105,6 @@ class LungSegmentation:
         
     @staticmethod
     def getFinalIndex(contoursForEachAxialSlice, direction):
-        # TODO: try and except instead of else
         if direction == "centerToTop":
             finalIndex = len(contoursForEachAxialSlice)            
         else:
@@ -112,7 +113,6 @@ class LungSegmentation:
     
     @staticmethod
     def stepDirectionToInteger(direction):
-       # TODO: try and except instead of else
         if direction == "centerToTop":
             stepDirection = 1
         else:
@@ -140,7 +140,7 @@ class LungSegmentation:
                 if self.isLungMask(mask, prevMask):
                     lungMasks.append(mask)
                     break # breaks inner loop
-        
+
         return lungMasks
 
     def isLungMask(self,mask, prevMask):
@@ -197,5 +197,6 @@ class LungSegmentation:
         for i in range(0,numberOfAxialSlices):
             mask[i] = refinedBottomMask[i] + refinedTopMask[i]
         return mask
-    
-    
+
+
+
