@@ -7,8 +7,9 @@ Authors: [Frederik Hartmann](https://github.com/Frederik-Hartmann), [Yusuf Baran
 [Erasmus Mundus Joint Master's Degree in Medical Imaging and Application](https://maiamaster.udg.edu/)
 \
 April 2023
+If you are only interested in reproducing the results on the Vessel12 dataset read the [installation markdown](installation.md)
 
-# A detailed tutorial 
+# A detailed tutorial
 In this tutorial, it is explained how to segment a lung in a 3d CT scan. First, let's take a look at a CT scan.
 
 <p align="center">
