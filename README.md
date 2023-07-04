@@ -7,6 +7,7 @@ Authors: [Frederik Hartmann](https://github.com/Frederik-Hartmann), [Yusuf Baran
 [Erasmus Mundus Joint Master's Degree in Medical Imaging and Application](https://maiamaster.udg.edu/)
 \
 April 2023
+\
 If you are only interested in reproducing the results on the Vessel12 dataset read the [installation markdown](installation.md)
 
 # A detailed tutorial
